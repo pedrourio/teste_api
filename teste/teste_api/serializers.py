@@ -1,20 +1,20 @@
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from teste.teste_api.models import Post
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    posts = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Post.objects.all()
+    )
+    
     class Meta:
         model = User
-        fields = ["url", "username", "email", "groups"]
+        fields = ["url", "username", "email", "password", "posts"]
 
-
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Group
-        fields = ["url", "name"]
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
     class Meta:
         model = Post
-        fields = ["url", "title", "description", "created", "last_edit", "author"]
+        fields = ["url", "title", "description", "created", "last_edit", "owner"]

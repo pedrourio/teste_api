@@ -1,24 +1,22 @@
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import  User
+from teste.teste_api.models import Post
 from rest_framework import permissions, viewsets
+from teste.teste_api.permissions import IsOwnerOrAdminOrReadOnly
 
-from teste.teste_api.serializers import GroupSerializer, UserSerializer
+
+from teste.teste_api.serializers import UserSerializer, PostSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-
-    queryset = User.objects.all().order_by("-date_joined")
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrAdminOrReadOnly]
 
 
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-
-    queryset = Group.objects.all().order_by("name")
-    serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAuthenticated]
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all().order_by("created")
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
