@@ -7,10 +7,20 @@ from teste.teste_api.permissions import IsOwnerOrAdminOrReadOnly
 from teste.teste_api.serializers import UserSerializer, PostSerializer
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def get_permissions(self):
+        if self.action == 'create':
+            return [permissions.AllowAny()]
+        
+        if self.action == 'destroy' or self.action == 'list' :
+            return [permissions.IsAdminUser()]
+        
+        if self.action == 'update' or self.action == 'partial_update':
+            return [IsOwnerOrAdminOrReadOnly()]
+        
 
 
 class PostViewSet(viewsets.ModelViewSet):
