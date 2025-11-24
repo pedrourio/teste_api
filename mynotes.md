@@ -1,6 +1,6 @@
 # DOCKER
 1. Construa as imagens Docker:
-	`docker-compose build`
+	`docker compose build`
 	
 2. Suba os contêineres:"
 	`docker compose up -d`
@@ -12,7 +12,7 @@
 	`docker compose exec web python manage.py createsuperuser`
 	ou
     `docker compose exec web python manage.py createsuperuser --username admin --email admin@example.com`
-                                                                                   
+
 Sua aplicação estará disponível em http://localhost:8000" 
 
 ## Caso seja necessário resetar o docker
@@ -91,3 +91,28 @@ exit()
         * senha: 123123
     2. USUÁRIO SEM CADASTRO:
         * _não faça login_
+
+
+# CORS
+É necessário desabilitar o CORS para realizar a integração da API com o frontend. Para isso devemos
+inserir o seguinte código em `settings.py`:
+``` 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+```
+
+
+# AUTENTICAÇÂO
+1. Colocar no installed apps: `rest_framework.authtoken`
+2. Fazer uma migration
+3. Adicionar rota específica:
+```
+from rest_framework.authtoken.views import obtain_auth_token
+
+urlpatterns = [
+    # ... suas outras rotas
+    path('api-token-auth/', obtain_auth_token), # Rota padrão do DRF para login
+]
+```
